@@ -10,7 +10,7 @@ public:
     T1 data;
     Node<T1>* prev, * next;
 
-    Node<T1>(double data) {
+    Node<T1>(T1 data) {
         this->data = data;
         this->prev = this->next = NULL;
     }
@@ -51,7 +51,7 @@ public:
     }
 
     void del_front() {
-        if (head == NULL) 
+        if (head == NULL)
             return;
 
         Node<T1>* ptr = head->next;
@@ -158,7 +158,7 @@ public:
     DynamicArray() {
         capacity = 10;
         size = 0;
-        array = new int[capacity];
+        array = new T2[capacity];
     }
 
     ~DynamicArray() {
@@ -166,7 +166,7 @@ public:
     }
 
     void resize(int newCapacity) {
-        T2* newArray = new int[newCapacity];
+        T2* newArray = new T2[newCapacity];
         for (int i = 0; i < size; i++) {
             newArray[i] = array[i];
         }
@@ -216,9 +216,14 @@ public:
         size++;
     }
 
-    void cout_array() {
+    void cout_array1() {
         for (int i = 0; i < size; i++)
             cout << array[i] << "\n";
+    }
+
+    void cout_array2() {
+        for (int i = 0; i < size; i++)
+            cout << array[i];
     }
 
     void remove(int index) {
@@ -237,67 +242,75 @@ public:
 };
 
 //стек
-template <typename T3>
-class Stek {
-public:
-    Node<T3>* head, * tail;
+//template <typename T3>
+//class Stek {
+//public:
+//    Node<T3>* head, * tail;
+//
+//    Stek() {
+//        this->head = this->tail = NULL;
+//    }
+//
+//    Node<T3>* push_back(T3 data) {
+//        Node<T3>* ptr = new Node<T3>(data);
+//
+//        ptr->prev = tail;
+//        if (tail != NULL)
+//            tail->next = ptr;
+//        if (head == NULL)
+//            head = ptr;
+//        tail = ptr;
+//
+//        return ptr;
+//    }
+//
+//    void del_back() {
+//        if (tail == NULL) return;
+//
+//        Node<T3>* ptr = tail->prev;
+//        if (ptr != NULL)
+//            ptr->next = NULL;
+//        else
+//            head = NULL;
+//
+//        delete tail;
+//        tail = ptr;
+//    }
+//};
 
-    Stek() {
-        this->head = this->tail = NULL;
-    }
-
-    Node<T3>* push_back(T3 data) {
-        Node<T3>* ptr = new Node<T3>(data);
-
-        ptr->prev = tail;
-        if (tail != NULL)
-            tail->next = ptr;
-        if (head == NULL)
-            head = ptr;
-        tail = ptr;
-
-        return ptr;
-    }
-
-    void del_back() {
-        if (tail == NULL) return;
-
-        Node<T3>* ptr = tail->prev;
-        if (ptr != NULL)
-            ptr->next = NULL;
-        else
-            head = NULL;
-
-        delete tail;
-        tail = ptr;
-    }
-};
-
-bool is_operator(char c) 
+bool is_operator(char c)
 {
-    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == 'cos' || c == 'sin';
+    return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == 'c' /*|| c=='o'*/ || c == 's' /*|| c=='i' || c=='n'*/;
 }
 
 // Получение приоритета оператора
-int get_precedence(char op) 
+int get_precedence(char op)
 {
     if (op == '+' || op == '-')
         return 1;
     else if (op == '*' || op == '/')
         return 2;
-    else if (op == '^' || op == 'cos' || op == 'sin')
+    else if (op == '^' || op == 'c' || op == 's' /*|| op == 'o' || op == 'i' || op == 'n'*/)
         return 3;
     return 0;
 }
 
-string convert(string str) 
+void convert(string str)
 {
-    Stek<char> stk;
-    string post;
-
+    LinkedList<char> stk;
+    DynamicArray <char> post;
+    size_t pos;
+    while ((pos = str.find("sin")) != std::string::npos) {
+        str.replace(pos, 3, "s");
+        pos++;
+    }
+    while ((pos = str.find("cos")) != std::string::npos) {
+        str.replace(pos, 3, "c");
+        pos++;
+    }
     for (char c : str) {
-        if (isalnum(c)) {
-            post += c;
+        if (isdigit(c)) {
+            post.push_back(c);
         }
         else if (c == ' ') {
             continue;
@@ -307,17 +320,29 @@ string convert(string str)
         }
         else if (c == ')') {
             while (stk.head != NULL && stk.tail->data != '(') {
-                post += stk.tail->data;
+                post.push_back(stk.tail->data);
                 stk.del_back();
             }
 
             if (stk.head != NULL && stk.tail->data == '(') {
+                post.push_back(stk.tail->data);
                 stk.del_back();
             }
         }
         else if (is_operator(c)) {
             while (stk.head != NULL && get_precedence(c) <= get_precedence(stk.tail->data)) {
-                post += stk.tail->data;
+                if (stk.tail->data == 'c') {
+                    post.push_back('c');
+                    post.push_back('o');
+                    post.push_back('s');
+                }
+                else if (stk.tail->data == 's') {
+                    post.push_back('s');
+                    post.push_back('i');
+                    post.push_back('n');
+                }
+                else
+                    post.push_back(stk.tail->data);
                 stk.del_back();
             }
             stk.push_back(c);
@@ -325,11 +350,23 @@ string convert(string str)
     }
 
     while (stk.head != NULL) {
-        post += stk.tail->data;
+        if (stk.tail->data == 'c') {
+            post.push_back('c');
+            post.push_back('o');
+            post.push_back('s');
+        }
+        else if (stk.tail->data == 's') {
+            post.push_back('s');
+            post.push_back('i');
+            post.push_back('n');
+        }
+        else
+            post.push_back(stk.tail->data);
         stk.del_back();
+
     }
 
-    return post;
+    post.cout_array2();
 }
 
 int main()
@@ -356,25 +393,26 @@ int main()
     ary.push_back(5);
     ary.push_back(6);
     ary.push_back(7);
-    ary.set(2,3);
-    ary.add(3,4);
+    ary.set(2, 3);
+    ary.add(3, 4);
     ary.push_back(8);
     ary.push_back(9);
     ary.push_back(10);
     ary.push_back(11);
     ary.remove(1);
-    ary.cout_array();
+    ary.cout_array1();
 
     //тест стека
 
 
     string str;
     printf("Введите выражение: ");
-    getline(cin,str);
-    cout << "Преобразованное выражение: " << convert(str);
+    getline(cin, str);
+    cout << "Преобразованное выражение: ";
+    convert(str);
 
     return 0;
 }
 
 
-//( 2 + 3 ) * 4 ^ 2 - sin ( 1 ) + cos ( 2 )
+//( 2 + 3 ) * 4 ^ 2 - sin ( 1 * 2 ) + cos ( 2 )
