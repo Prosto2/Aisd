@@ -297,6 +297,7 @@ int get_precedence(char op)
 
 void convert(string str)
 {
+    int count = 0;
     LinkedList<char> stk;
     DynamicArray <char> post;
     size_t pos;
@@ -317,16 +318,21 @@ void convert(string str)
         }
         else if (c == '(') {
             stk.push_back(c);
+            count++;
         }
         else if (c == ')') {
+            count--;
             while (stk.head != NULL && stk.tail->data != '(') {
                 post.push_back(stk.tail->data);
                 stk.del_back();
             }
 
             if (stk.head != NULL && stk.tail->data == '(') {
-                post.push_back(stk.tail->data);
                 stk.del_back();
+            }
+            else {
+                cout << "В выражении пропущена скобка";
+                exit(-1);
             }
         }
         else if (is_operator(c)) {
@@ -360,11 +366,17 @@ void convert(string str)
             post.push_back('i');
             post.push_back('n');
         }
-        else
+        else{
             post.push_back(stk.tail->data);
+        }
         stk.del_back();
 
     }
+    if (count != 0) {
+        cout << "В выражении пропущена скобка";
+        exit(-1);
+    }
+
 
     post.cout_array2();
 }
