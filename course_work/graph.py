@@ -28,7 +28,7 @@ class TGraph():
                 if vertex == edge[0]:
                     incidence_matrix[i][j] = 1
                 elif vertex == edge[1]:
-                    incidence_matrix[i][j] = -1
+                    incidence_matrix[i][j] = 1
 
         return incidence_matrix
 
